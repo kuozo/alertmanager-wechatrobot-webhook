@@ -11,9 +11,9 @@ import (
 )
 
 // Send send markdown message to dingtalk
-func Send(notification model.Notification, defaultRobot string) (err error) {
+func Send(notification model.Notification, defaultRobot string, grafanaURL string, alertDomain string) (err error) {
 
-	markdown, robotURL, err := transformer.TransformToMarkdown(notification)
+	markdown, robotURL, err := transformer.TransformToMarkdown(notification, grafanaURL, alertDomain)
 
 	if err != nil {
 		return

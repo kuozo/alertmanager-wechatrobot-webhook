@@ -1,0 +1,70 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/instance: k8s
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.46.0
+    prometheus: k8s
+    role: alert-rules
+  name: prometheus-k8s-prometheus-rules
+  namespace: monitoring
+spec:
+  groups:
+    - name: k8s-alert
+      rules:
+        - alert: 容器cpu使用率
+          expr: sum(irate(container_cpu_usage_seconds_total{namespace='ems-plus-mapai'}[2m])) by (pod) / (sum(container_spec_cpu_quota{namespace='ems-plus-mapai'} /100000) by (pod)) * 100 > 95
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: 容器cpu使用率过高
+            description: 集群名称:储能-ems-cn  命名空间:{{$labels.namespace}}   容器:{{$labels.container}}   Pod:{{$labels.pod}} cpu使用率超过90%,(当前值:{{ printf "%.0f" $value }}%)
+
+        - alert: 容器内存使用率
+          expr: (sum (container_memory_working_set_bytes{namespace='ems-plus-mapai', container!='care-smart',pod!~'care-smart-.*-.*'}) by (container,pod,name,namespace) / sum(container_spec_memory_limit_bytes{namespace='ems-plus-mapai',container!='care-smart',pod!~'care-smart-.*-.*'} > 0) by (container,pod,name,namespace) * 100) > 70
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: 容器内存使用率过高
+            description: 集群名称:储能-ems-cn  命名空间:{{$labels.namespace}}   容器:{{$labels.container}}   Pod:{{$labels.pod}} 内存使用率超过95%, (当前值:{{ printf "%.0f" $value }}%)
+
+        - alert: rabbitmq内存使用率
+          expr: (sum by (container, pod, name, namespace) (container_memory_working_set_bytes{container="rabbitmq",namespace="ems-plus-mapai",pod!~"care-smart-.*-.*"}) / sum by (container, pod, name, namespace) (container_spec_memory_limit_bytes{container="rabbitmq",namespace="ems-plus-mapai",pod!~"care-smart-.*-.*"} > 0) * 100) > 80
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: rabbitmq内存使用率过高
+            description: 集群名称:储能-ems-cn  命名空间:{{$labels.namespace}}   容器:{{$labels.container}}   Pod:{{$labels.pod}} 内存使用率超过80%, (当前值:{{ printf "%.0f" $value }}%)
+
+        - alert: Pod可用率
+          expr: kube_deployment_status_replicas_available / kube_deployment_status_replicas < 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: pod可用率低于100%
+            description: "集群名称:储能-ems-cn  命名空间:{{$labels.namespace}}   Deployment:{{$labels.deployment}} Pod可用率小于100%, (当前不可用Pod数: {{ $value }})"
+
+        - alert: Pod状态异常
+          expr: sum(min_over_time(kube_pod_status_phase{phase=~"Unknown|Failed|Pending"}[10m])) by (namespace,pod,phase) = 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: pod状态异常，请检查
+            description: 集群名称:储能-ems-cn  命名空间:{{$labels.namespace}}   Pod:{{$labels.pod}} 处于{{$labels.phase}}状态持续超过10分钟
+
+        - alert: Pod频繁重启
+          expr: increase(kube_pod_container_status_restarts_total[10m]) > 3
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: pod频繁重启，请检查
+            description: 集群名称:储能-ems-cn  命名空间:{{$labels.namespace}}   Pod:{{$labels.pod}} 10分钟内重启超过3次

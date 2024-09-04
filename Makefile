@@ -1,11 +1,10 @@
 
 bin/wechat-webhook:
-	GOOS=linux GOARCH=amd64 go build -ldflags "-w" -o bin/wechat-webhook
+	 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "-w" -o bin/wechat-webhook
 
 # make tke version=wechat-webhook
 tke: bin/wechat-webhook
-	docker build -f Dockerfile -t ccr.ccs.tencentyun.com/ahfuzhang/victoria-metrics-starter:$(version) . \
-	    --network=host --platform=linux/amd64 && \
-    docker push ccr.ccs.tencentyun.com/ahfuzhang/victoria-metrics-starter:$(version)
+	docker build -t  registry.cn-hangzhou.aliyuncs.com/novacloud/wechat-webhook-new:ems1.1 . \
+    docker push registry.cn-hangzhou.aliyuncs.com/novacloud/wechat-webhook-new:ems1.1
 
 	
