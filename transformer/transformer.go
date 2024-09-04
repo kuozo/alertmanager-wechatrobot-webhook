@@ -61,7 +61,6 @@ func TransformToMarkdown(notification model.Notification, grafanaURL string, ale
 		buffer.WriteString(fmt.Sprintf("\n [跳转Grafana看板](https://%s?orgId=1&var-origin_prometheus=&var-Node=All&var-NameSpace=%s&var-Container=%s&var-Pod=All)", grafanaURL, namespace, container))
 		buffer.WriteString(fmt.Sprintf("\n [告警规则详情](http://%s/alerts?search=)", alertDomain))
 		//buffer.WriteString("\n [告警规则详情](http://%s/alerts?search=)", alertDomain)
-		//buffer.WriteString("\n @王旭-Nova006393")
 		//buffer.WriteString(fmt.Sprintf("\n>告警级别: %s\n", labels["severity"]))
 		//buffer.WriteString(fmt.Sprintf("\n>告警类型: %s\n", labels["alertname"]))
 		//buffer.WriteString(fmt.Sprintf("\n>故障主机: %s\n", labels["instance"]))

@@ -10,6 +10,8 @@ type Alert struct {
 }
 
 type Notification struct {
+	// The Alertmanager will send HTTP POST requests in the following JSON format to the configured endpoint:
+	// https://prometheus.io/docs/alerting/latest/configuration/#webhook_config
 	Version           string            `json:"version"`
 	GroupKey          string            `json:"groupKey"`
 	Status            string            `json:"status"`
