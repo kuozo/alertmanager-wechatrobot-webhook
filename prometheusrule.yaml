@@ -68,9 +68,6 @@ spec:
           for: 5m
           labels:
             severity: warning
-            namespace: ems-plus-mapai
-            cluster: "储能-ems-cn"
-            node: "{{ $labels.instance }}"
         - alert: Pod频繁重启
           annotations:
             description: 集群名称:储能-ems-cn  命名空间:{{$labels.namespace}}   Pod:{{$labels.pod}}

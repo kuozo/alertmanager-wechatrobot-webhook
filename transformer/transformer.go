@@ -58,7 +58,7 @@ func TransformToMarkdown(notification model.Notification, grafanaURL string, ale
 		labels := alert.Labels
 		// 动态获取 namespace, container, alertDomain
 		namespace := labels["namespace"]
-		container := labels["container"]
+		pod := labels["pod"]
 		severity := labels["severity"]
 		alertColor := getAlertColor(severity)
 
@@ -70,8 +70,9 @@ func TransformToMarkdown(notification model.Notification, grafanaURL string, ale
 		buffer.WriteString(fmt.Sprintf("\n>【内容】 %s\n", annotations["description"]))
 		buffer.WriteString(fmt.Sprintf("\n>【当前状态】 %s \n", status))
 		buffer.WriteString(fmt.Sprintf("\n>【触发时间】 %s\n", alert.StartsAt.Format("2006-01-02 15:04:05")))
-		buffer.WriteString(fmt.Sprintf("\n[跳转Grafana看板](https://%s?orgId=1&var-NameSpace=%s&var-Container=%s)", grafanaURL, namespace, container))
+		buffer.WriteString(fmt.Sprintf("\n[跳转Grafana看板](https://%s?orgId=1&var-NameSpace=%s&var-Pod=%s)", grafanaURL, namespace, pod))
 		buffer.WriteString(fmt.Sprintf("\n[告警规则详情](http://%s/alerts?search=)", alertDomain))
+		buffer.WriteString(fmt.Sprintf("\n[日志详情](https://aws-au-loki-grafana.vnnox.com/d/o6-BGgnnk/loki-kubernetes-logs?orgId=1&from=now-1h&to=now&var-query=&var-namespace=au&var-stream=All&var-container=vnnox-middle-oauth)"))
 
 		// 检查当前长度是否超过最大长度
 		if buffer.Len() >= maxMarkdownLength || alertCount >= maxAlertsPerMessage {
