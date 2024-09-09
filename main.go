@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"net/http"
 
 	"github.com/k8stech/alertmanager-wechatrobot-webhook/model"
@@ -60,7 +59,7 @@ func main() {
 		RobotKey := c.DefaultQuery("key", RobotKey)
 
 		err = notifier.Send(notification, RobotKey, grafanaUrl, alertDomain)
-		fmt.Println("notification:", notification, "RobotKey:", RobotKey)
+		//fmt.Println("notification:", notification, "RobotKey:", RobotKey)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 
