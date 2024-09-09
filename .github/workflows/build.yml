@@ -9,20 +9,7 @@ env:
   DOCKERHUB_USERNAME: ninesun0318
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.17'
-      - name: Build
-        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "-w" -o bin/wechat-webhook
-
   docker:
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
