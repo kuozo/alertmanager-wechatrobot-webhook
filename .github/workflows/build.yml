@@ -3,7 +3,11 @@ name: wechat-webhook CI
 on:
   push:
     branches:
-      - "main"
+      - "master"
+  workflow_run:
+    workflows: ["build wechat-webhook binary"]
+    types:
+      - completed
 
 env:
   DOCKERHUB_USERNAME: ninesun0318
