@@ -12,8 +12,8 @@ RUN apk update && apk upgrade \
     && apk add ca-certificates\
     && update-ca-certificates \
     && apk --no-cache add openssl wget \
-	&& apk add --no-cache bash tzdata curl \
-	&& set -ex \
+        && apk add --no-cache bash tzdata curl \
+        && set -ex \
     && mkdir -p /usr/bin \
     && mkdir -p /usr/sbin \
     && mkdir -p /data/wechat-webhook/
