@@ -33,7 +33,7 @@ jobs:
       - name: Build wechat-webhook-new and push
         uses: docker/build-push-action@v3
         with:
-          context: wechat-webhook-new
+          context:  .  # Docker 构建上下文，确保包含 Dockerfile 和 bin/wechat-webhook 文件
           push: true
           platforms: linux/amd64
           #          platforms: linux/amd64,linux/arm64 # ��ƽ̨
