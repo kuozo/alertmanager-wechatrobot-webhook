@@ -12,8 +12,7 @@ import (
 
 // Send send markdown message to dingtalk
 func Send(notification model.Notification, defaultRobot string, grafanaURL string, alertDomain string) (err error) {
-	notificationJSON, _ := json.Marshal(notification)
-	fmt.Println("Nova notification JSON:", string(notificationJSON))
+	fmt.Println("notification:%s", notification)
 	markdown, robotURL, err := transformer.TransformToMarkdown(notification, grafanaURL, alertDomain)
 
 	if err != nil {
