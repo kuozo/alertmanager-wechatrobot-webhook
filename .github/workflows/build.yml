@@ -1,4 +1,4 @@
-name: wechat-webhook CI
+name: wechat-webhook image push
 
 on:
   push:
