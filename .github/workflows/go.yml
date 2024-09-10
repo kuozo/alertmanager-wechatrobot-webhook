@@ -60,7 +60,7 @@ jobs:
           file: ./Dockerfile  # 确保 Dockerfile 在项目根目录
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/wechat-webhook-new:${{ env.TAG }}
+          tags: ${{ env.DOCKERHUB_USERNAME }}/wechat-webhook-new:${{ env.TAG }}
 
 
 #name: Go Build and Docker Image Push
