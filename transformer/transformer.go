@@ -3,6 +3,7 @@ package transformer
 import (
 	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/k8stech/alertmanager-wechatrobot-webhook/model"
 )
@@ -40,7 +41,8 @@ func TransformToMarkdown(notification model.Notification, grafanaURL string, ale
 		// 动态获取 var-NameSpace 和 var-Container
 		namespace := labels["namespace"]
 		pod := labels["pod"]
-		node := labels["node"]
+		instance := labels["instance"]
+		ip := strings.Split(instance, ":")
 		// 获取告警等级
 		severity := labels["severity"]
 		// 获取对应的颜色
@@ -58,8 +60,7 @@ func TransformToMarkdown(notification model.Notification, grafanaURL string, ale
 		buffer.WriteString(fmt.Sprintf("\n>【内容】 %s\n", alert.Annotations["description"]))
 		buffer.WriteString(fmt.Sprintf("\n>【当前状态】%s \n", status))
 		buffer.WriteString(fmt.Sprintf("\n>【触发时间】 %s\n", alert.StartsAt.Format("2006-01-02 15:04:05")))
-		//buffer.WriteString(fmt.Sprintf("\n [跳转Grafana看板](https://grafana.vnnox.com/d/PwMJtdvnr/k8s-chu-neng-cnanduat?orgId=1&var-origin_prometheus=&var-Node=All&var-NameSpace=%s&var-Container=%s&var-Pod=All)", namespace, container))
-		buffer.WriteString(fmt.Sprintf("\n [跳转Grafana看板](https://%s?orgId=1&var-origin_prometheus=&var-Node=%s&var-NameSpace=%s&var-Pod=%s&var-Pod=All)", grafanaURL, node, namespace, pod))
+		buffer.WriteString(fmt.Sprintf("\n [跳转Grafana看板](https://%s?orgId=1&var-origin_prometheus=&var-Node=%s&var-NameSpace=%s&var-Pod=%s&var-Pod=All)", grafanaURL, ip[0], namespace, pod))
 		buffer.WriteString(fmt.Sprintf("\n [告警规则详情](http://%s/alerts?search=)", alertDomain))
 		buffer.WriteString(fmt.Sprintf("\n [日志详情](https://aws-au-loki-grafana.vnnox.com/d/o6-BGgnnk/loki-kubernetes-logs?orgId=1&from=now-1h&to=now&var-query=&var-namespace=au&var-stream=All&var-container=vnnox-middle-oauth)"))
 		buffer.WriteString(fmt.Sprintf("\n"))
