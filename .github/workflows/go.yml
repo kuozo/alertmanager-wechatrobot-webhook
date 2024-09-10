@@ -1,34 +1,66 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: build wechat-webhook binary
+name: Go Build and Docker Image Push
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - "master"
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - "master"
+
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
 jobs:
-
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
+      # Step 1: Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.17'
+      # Step 2: Set up Go environment
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.17'
 
-    - name: Create bin directory
-      run: mkdir -p bin
+      # Step 3: Build Go binary
+      - name: Build Go binary
+        run: |
+          mkdir -p bin
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "-w" -o bin/wechat-webhook
 
-    - name: Build
-      run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "-w" -o bin/wechat-webhook
+      # Step 4: Set up QEMU (for multi-platform builds)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
-    - name: List bin directory
-      run: ls -al bin
+      # Step 5: Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    - name: Test
-      run: go test -v ./...
+      # Step 6: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Step 7: Build and push Docker image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .  # The Docker build context, ensure the Dockerfile and binary are in this directory
+          file: ./Dockerfile  # Path to your Dockerfile
+          push: true  # Push the image to Docker Hub
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/wechat-webhook:latest
+
+      # Optionally, push an image with the short Git SHA as a tag
+      - name: Tag image with Git SHA
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/wechat-webhook:${{ github.sha }}
