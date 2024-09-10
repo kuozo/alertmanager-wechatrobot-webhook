@@ -43,7 +43,7 @@ func TransformToMarkdown(notification model.Notification, grafanaURL string, ale
 		// 获取告警等级
 		severity := labels["severity"]
 		// 获取对应的颜色
-		alertColor := getAlertColor(severity)
+		alertColor := getAlertColor(status)
 
 		buffer.WriteString(fmt.Sprintf("### 当前状态: <font color='%s'> %s </font>\n", alertColor, status))
 
