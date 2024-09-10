@@ -20,8 +20,8 @@ spec:
             description: 集群名称:储能-ems-cn  命名空间:{{$labels.namespace}}   容器:{{$labels.container}}   Pod:{{$labels.pod}}
               cpu使用率超过30%,(当前值:{{ printf "%.0f" $value }}%)
             summary: 容器cpu使用率过高
-          expr: sum(irate(container_cpu_usage_seconds_total{namespace='ems-plus-mapai'}[2m])) by
-            (pod) / (sum(container_spec_cpu_quota{namespace='ems-plus-mapai'} /100000) by (pod))
+          expr: sum(irate(container_cpu_usage_seconds_total{namespace=~'ems-plus-mapai|ems-uat'}[2m])) by
+            (pod,namespace, instance,container) / (sum(container_spec_cpu_quota{namespace=~'ems-plus-mapai|ems-uat'} /100000) by (pod,namespace, node,container))
             * 100 > 30
           for: 1m
           labels:
@@ -29,11 +29,11 @@ spec:
         - alert: 容器内存使用率
           annotations:
             description: 集群名称:储能-ems-cn  命名空间:{{$labels.namespace}}   容器:{{$labels.container}}   Pod:{{$labels.pod}}
-              内存使用率超过40%, (当前值:{{ printf "%.0f" $value }}%)
+              内存使用率超过60%, (当前值:{{ printf "%.0f" $value }}%)
             summary: 容器内存使用率过高
-          expr: (sum (container_memory_working_set_bytes{namespace='ems-plus-mapai', container!='care-smart',pod!~'care-smart-.*-.*'})
-            by (container,pod,name,namespace) / sum(container_spec_memory_limit_bytes{namespace='ems-plus-mapai',container!='care-smart',pod!~'care-smart-.*-.*'}
-            > 0) by (container,pod,name,namespace) * 100) > 40
+          expr: (sum (container_memory_working_set_bytes{namespace=~'ems-plus-mapai|ems-uat', container!='care-smart',pod!~'care-smart-.*-.*'})
+            by (container,pod,instance,namespace) / sum(container_spec_memory_limit_bytes{namespace=~'ems-plus-mapai|ems-uat',container!='care-smart',pod!~'care-smart-.*-.*'}
+            > 0) by (container,pod,instance,namespace) * 100) > 60
           for: 1m
           labels:
             severity: warning
@@ -42,9 +42,9 @@ spec:
             description: 集群名称:储能-ems-cn  命名空间:{{$labels.namespace}}   容器:{{$labels.container}}   Pod:{{$labels.pod}}
               内存使用率超过80%, (当前值:{{ printf "%.0f" $value }}%)
             summary: rabbitmq内存使用率过高
-          expr: (sum by (container, pod, name, namespace) (container_memory_working_set_bytes{container="rabbitmq",namespace="ems-plus-mapai",pod!~"care-smart-.*-.*"})
-            / sum by (container, pod, name, namespace) (container_spec_memory_limit_bytes{container="rabbitmq",namespace="ems-plus-mapai",pod!~"care-smart-.*-.*"}
-            > 0) * 100) > 80
+          expr: (sum by (container, pod, instance, namespace) (container_memory_working_set_bytes{container="rabbitmq",namespace="ems-plus-mapai",pod!~"care-smart-.*-.*"})
+            / sum by (container, pod, instance, namespace) (container_spec_memory_limit_bytes{container="rabbitmq",namespace="ems-plus-mapai",pod!~"care-smart-.*-.*"}
+            > 0) * 100) > 1
           for: 2m
           labels:
             severity: warning
@@ -64,7 +64,7 @@ spec:
               处于{{$labels.phase}}状态持续超过10分钟
             summary: pod状态异常，请检查
           expr: sum(min_over_time(kube_pod_status_phase{phase=~"Unknown|Failed|Pending"}[10m]))
-            by (namespace,pod,phase) > 0
+            by (namespace,pod,phase,instance) > 0
           for: 1m
           labels:
             severity: warning
@@ -93,12 +93,10 @@ spec:
               printf "%.0f" $value }}%
             summary: node节点cpu使用率过高
           expr: sum without(mode) (avg without (cpu) (rate(node_cpu_seconds_total{job="node-exporter",
-            mode!="idle"}[2m]))) * 100 > 85
+            mode!="idle"}[2m]))) * 100 > 3
           for: 5m
           labels:
             severity: warning
-            cluster: "储能-ems-cn"
-            node: "{{ $labels.instance }}"
         - alert: node_节点cpu使用率过高
           annotations:
             description: 储能-ems-cn集群  node节点{{$labels.instance}}cpu使用率超过90%,当前值:{{ printf
@@ -115,7 +113,7 @@ spec:
               printf "%.0f" $value }}%
             summary: node节点内存使用率过高
           expr: 100 - (node_memory_MemAvailable_bytes{job="node-exporter"} / node_memory_MemTotal_bytes{job="node-exporter"}
-            * 100) > 80
+            * 100) > 50
           for: 5m
           labels:
             severity: warning
@@ -136,7 +134,7 @@ spec:
             summary: node节点磁盘使用率过高
           expr: 100 - ((node_filesystem_avail_bytes{device!~'rootfs', mountpoint=~'/|(/var/lib/kubelet)'}
             * 100) / node_filesystem_size_bytes{device!~'rootfs',mountpoint=~'/|(/var/lib/kubelet)'})
-            > 80
+            > 60
           for: 5m
           labels:
             severity: warning
