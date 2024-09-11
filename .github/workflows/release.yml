@@ -3,6 +3,8 @@ name: release
 on:
   release:
     types: [created]
+permissions:
+  contents: write  # 必须允许对内容的写权限，这样才能发布 release 和上传文件
 
 jobs:
   releases-linux-binaries:
