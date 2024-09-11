@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/k8stech/alertmanager-wechatrobot-webhook/model"
 )
@@ -37,7 +38,15 @@ func TransformToMarkdown(notification model.Notification, grafanaURL string, ale
 
 	for _, alert := range notification.Alerts {
 		labels := alert.Labels
+		// 加载 CST 时区
+		cstZone, err := time.LoadLocation("Asia/Shanghai")
+		if err != nil {
+			// 处理错误，例如无法加载时区
+			fmt.Println("Error loading location:", err)
+		}
 
+		// 将 UTC 时间转换为 CST 时间
+		cstTime := alert.StartsAt.In(cstZone)
 		// 动态获取 var-NameSpace 和 var-Container
 		namespace := labels["namespace"]
 		pod := labels["pod"]
@@ -59,7 +68,7 @@ func TransformToMarkdown(notification model.Notification, grafanaURL string, ale
 		buffer.WriteString(fmt.Sprintf("\n>【主机】 %s\n", labels["instance"]))
 		buffer.WriteString(fmt.Sprintf("\n>【内容】 %s\n", alert.Annotations["description"]))
 		buffer.WriteString(fmt.Sprintf("\n>【当前状态】%s \n", status))
-		buffer.WriteString(fmt.Sprintf("\n>【触发时间】 %s\n", alert.StartsAt.Format("2006-01-02 15:04:05")))
+		buffer.WriteString(fmt.Sprintf("\n>【触发时间】 %s\n", cstTime.Format("2006-01-02 15:04:05")))
 		buffer.WriteString(fmt.Sprintf("\n [跳转Grafana看板](https://%s?orgId=1&var-origin_prometheus=&var-Node=%s&var-NameSpace=%s&var-Pod=%s&var-Pod=All)", grafanaURL, ip[0], namespace, pod))
 		buffer.WriteString(fmt.Sprintf("\n [告警规则详情](http://%s/alerts?search=)", alertDomain))
 		buffer.WriteString(fmt.Sprintf("\n [日志详情](https://aws-au-loki-grafana.vnnox.com/d/o6-BGgnnk/loki-kubernetes-logs?orgId=1&from=now-1h&to=now&var-query=&var-namespace=au&var-stream=All&var-container=vnnox-middle-oauth)"))
