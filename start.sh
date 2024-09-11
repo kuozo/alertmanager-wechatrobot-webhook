@@ -9,4 +9,4 @@ function main() {
 
 main "$1" "$2" "$3" "$4
 
-# nohup /usr/bin/wechat-webhook -RobotKey "77d13fe6-0047-48bc-803d-900892" -addr ":8888" -grafanaUrl "grafana.vnnox.com/d/PwMJtdvnr/k8s-chu-neng-cnanduat" -alertDomain "emscn-prometheus.ampaura.tech" &> emscn.log &
+nohup /usr/bin/wechat-webhook -RobotKey "77d13fe6-0047-48bc-803d-900892" -addr ":8888" -grafanaUrl "grafana.vnnox.com/d/PwMJtdvnr/k8s-chu-neng-cnanduat" -alertDomain "emscn-prometheus.ampaura.tech" &> emscn.log &
