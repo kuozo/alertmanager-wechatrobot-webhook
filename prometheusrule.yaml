@@ -29,11 +29,11 @@ spec:
         - alert: 容器内存使用率
           annotations:
             description: 集群名称:储能-ems-cn  命名空间:{{$labels.namespace}}   容器:{{$labels.container}}   Pod:{{$labels.pod}}
-              内存使用率超过85%, (当前值:{{ printf "%.0f" $value }}%)
+              内存使用率超过90%, (当前值:{{ printf "%.0f" $value }}%)
             summary: 容器内存使用率过高
           expr: (sum (container_memory_working_set_bytes{namespace=~'ems-plus-mapai|ems-uat', container!='care-smart',pod!~'care-smart-.*-.*'})
             by (container,pod,instance,namespace) / sum(container_spec_memory_limit_bytes{namespace=~'ems-plus-mapai|ems-uat',container!='care-smart',pod!~'care-smart-.*-.*'}
-            > 0) by (container,pod,instance,namespace) * 100) > 85
+            > 0) by (container,pod,instance,namespace) * 100) > 90
           for: 5m
           labels:
             severity: warning

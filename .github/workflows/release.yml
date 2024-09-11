@@ -1,8 +1,11 @@
 name: release
 
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - "master"
+    tags:
+      - "*"  # 匹配所有的 tag 推送
 permissions:
   contents: write  # 必须允许对内容的写权限，这样才能发布 release 和上传文件
 
