@@ -1,4 +1,4 @@
-name: Go Build and Docker Image Push
+name:  Docker Image Push
 
 # 触发条件：当推送到 master 分支或者推送标签时触发
 on:
@@ -26,11 +26,11 @@ jobs:
         with:
           go-version: '1.17'
 
-      # Step 3: Build Go binary
-      - name: Build Go binary
-        run: |
-          mkdir -p bin
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "-w" -o bin/wechat-webhook
+#      # Step 3: Build Go binary
+#      - name: Build Go binary
+#        run: |
+#          mkdir -p bin
+#          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "-w" -o bin/wechat-webhook
 
       # Step 4: Set up QEMU for multi-platform builds
       - name: Set up QEMU
