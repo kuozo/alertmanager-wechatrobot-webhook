@@ -23,7 +23,7 @@ RUN apk update && apk upgrade \
     && mkdir -p /usr/sbin \
     && mkdir -p /data/wechat-webhook/
 
-COPY --from=builder wechat-webhook /usr/bin
+COPY --from=builder /opt/app/wechat-webhook /usr/bin/wechat-webhook
 ADD start.sh /data/wechat-webhook/
 WORKDIR /data/wechat-webhook/
 
