@@ -1,8 +1,13 @@
-FROM --platform=linux/amd64 amd64/alpine:3.12.0
-#FROM --platform=linux/amd64 golang:1.17-alpine
+# syntax=docker/dockerfile:1
 
-# docker pull golang:1.17-alpine@sha256:ad6c114a2c858710c4db54f6c89d0e76f753831f01827252064be0017612fecc
+# Step 1: build golang binary
+FROM golang:1.17 as builder
+WORKDIR /opt/app
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "-w" -o wechat-webhook
 
+# Step 2: copy binary from step1
+FROM alpine:latest
 ENV PATH /usr/local/bin:$PATH
 ENV LANG C.UTF-8
 
@@ -12,13 +17,13 @@ RUN apk update && apk upgrade \
     && apk add ca-certificates\
     && update-ca-certificates \
     && apk --no-cache add openssl wget \
-	&& apk add --no-cache bash tzdata curl \
-	&& set -ex \
+        && apk add --no-cache bash tzdata curl \
+        && set -ex \
     && mkdir -p /usr/bin \
     && mkdir -p /usr/sbin \
     && mkdir -p /data/wechat-webhook/
 
-ADD bin/wechat-webhook /usr/bin/
+COPY --from=builder /opt/app/wechat-webhook /usr/bin/wechat-webhook
 ADD start.sh /data/wechat-webhook/
-
 WORKDIR /data/wechat-webhook/
+

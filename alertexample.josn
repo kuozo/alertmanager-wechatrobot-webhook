@@ -1,0 +1,36 @@
+{
+	"version": "4",
+	"groupKey": "{}:{alertname=\"Pod状态异常\"}",
+	"status": "firing",
+	"Receiver": "webhook",
+	"GroupLabels": {
+		"alertname": "Pod状态异常"
+	},
+	"CommonLabels": {
+		"alertname": "Pod状态异常",
+		"prometheus": "monitoring/k8s",
+		"severity": "warning"
+	},
+	"CommonAnnotations": {
+		"summary": "pod状态异常，请检查"
+	},
+	"ExternalURL": "http://alertmanager-main-0:9093",
+	"Alerts": [
+		{
+			"labels": {
+				"alertname": "Pod状态异常",
+				"namespace": "default",
+				"phase": "Failed",
+				"pod": "nginx123123123",
+				"prometheus": "monitoring/k8s",
+				"severity": "warning"
+			},
+			"Annotations": {
+				"description": "集群名称:储能-ems-cn  命名空间:default   Pod:nginx123123123 处于Failed状态持续超过10分钟",
+				"summary": "pod状态异常，请检查"
+			},
+			"startsAt": "2024-09-06T09:50:55.687Z",
+			"endsAt": "0001-01-01T00:00:00Z"
+		}
+	]
+}
